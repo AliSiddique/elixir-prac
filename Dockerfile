@@ -1,5 +1,5 @@
 # Use the official Elixir image as the base
-FROM elixir:1.12.3
+FROM elixir:1.14
 
 # Install Node.js and npm
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
