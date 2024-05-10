@@ -1,26 +1,40 @@
-FROM bitwalker/alpine-elixir-phoenix:latest
+# Use the official Elixir image as the base
+FROM elixir:1.12.3
 
-# Set exposed ports
-EXPOSE 5000
-ENV PORT=5000 MIX_ENV=prod
+# Install Node.js and npm
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
 
-# Cache elixir deps
-ADD mix.exs mix.lock ./
-RUN mix do deps.get, deps.compile
+# Install inotify-tools for file system watching
+RUN apt-get install -y inotify-tools
 
-# Same with npm deps
-ADD assets/package.json assets/
-RUN cd assets && \
-    npm install
+# Set the working directory inside the container
+WORKDIR /app
 
-ADD . .
+# Install hex package manager and rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
 
-# Run frontend build, compile, and digest assets
-RUN cd assets/ && \
-    npm run deploy && \
-    cd - && \
-    mix do compile, phx.digest
+# Install Phoenix framework
+RUN mix archive.install hex phx_new 1.6.0 --force
 
-USER default
+# Copy the mix.exs and mix.lock files to install dependencies
+COPY mix.* ./
 
+# Install dependencies
+RUN mix deps.get
+
+# Copy the rest of the application code
+COPY . .
+
+# Compile the application
+RUN mix compile
+
+# Expose the Phoenix port
+EXPOSE 4000
+
+# Set the environment variables
+ENV MIX_ENV=prod
+
+# Run the Phoenix server
 CMD ["mix", "phx.server"]
