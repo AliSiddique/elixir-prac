@@ -6,7 +6,9 @@ import Config
 # which you should run after static files are built and
 # before starting your production server.
 config :pracphoenix, PracphoenixWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
-
+config :pracphoenix, PhoenixHelloWeb.Endpoint,
+  url: [host: System.get_env("RENDER_EXTERNAL_HOSTNAME") || "localhost", port: 80],
+  cache_static_manifest: "priv/static/cache_manifest.json"
 # Configures Swoosh API Client
 config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: Pracphoenix.Finch
 
