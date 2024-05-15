@@ -8,6 +8,7 @@ defmodule Pracphoenix.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # PracphoenixWeb.Presence,
       # Start the Telemetry supervisor
       PracphoenixWeb.Telemetry,
       # Start the Ecto repository
