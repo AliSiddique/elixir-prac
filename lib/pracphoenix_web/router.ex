@@ -24,6 +24,7 @@ defmodule PracphoenixWeb.Router do
     live "/practise", PractiseCon
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
+    resources "/products", ProductController
 
   end
 
