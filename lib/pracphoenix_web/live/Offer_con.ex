@@ -1,15 +1,22 @@
 defmodule PracphoenixWeb.OfferCon do
+  use PracphoenixWeb, :live_view
+
   alias Pracphoenix.Offers
   alias Pracphoenix.Offers.Offer
 
-  use PracphoenixWeb, :live_view
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Offers.subscribe()
     end
     offers = Offers.list_offers()
     changeset = Offers.change_offer(%Offer{})
-    {:ok, assign(socket, offers: offers, form: to_form(changeset),num_offer: length(offers),search: "", search_result: [])}
+
+    socket =
+      socket
+      |> stream(:offers, offers)
+      |> assign(form: to_form(changeset), num_offer: length(offers), search: "", search_result: [])
+
+    {:ok, socket}
   end
   def render(assigns) do
     ~H"""
@@ -83,19 +90,16 @@ defmodule PracphoenixWeb.OfferCon do
     <li :for={searches <- @search_result} class="bg-gradient-to-br from-teal-100 via-blue-900 to-red-400 ">
     <%= searches.course %>
     </li>
-    <div
+    <%!-- <div
     x-data="{ 'showModal': false }"
     @keydown.escape="showModal = false"
     >
-    <!-- Trigger for Modal -->
     <button type="button" @click="showModal = true">Open Modal</button>
 
-    <!-- Modal -->
     <div
         class="fixed inset-0 z-30 flex items-center justify-center overflow-auto bg-black bg-opacity-50 backdrop-blur-sm"
         x-show="showModal"
     >
-        <!-- Modal inner -->
         <div
             class="max-w-7xl px-6 py-4 mx-auto text-left bg-white rounded shadow-lg"
             @click.away="showModal = false"
@@ -103,7 +107,6 @@ defmodule PracphoenixWeb.OfferCon do
             x-transition:enter-start="opacity-0 scale-90"
             x-transition:enter-end="opacity-100 scale-100"
         >
-            <!-- Title / Close-->
             <div class="flex items-center justify-between">
                 <h5 class="mr-3 text-black max-w-none">Title</h5>
 
@@ -114,21 +117,25 @@ defmodule PracphoenixWeb.OfferCon do
                 </button>
             </div>
 
-            <!-- content -->
             <div>
+            <%!-- <.form for={@form} phx-change="validate"  phx-submit="save" >
+    <.input  field={@form[:uni]}   />
+    <.input field={@form[:course]}  />
+    <.button phx-disable-with="Loading..." >Save</.button>
+    </.form> --%>
+            <%!-- </div>
+        </div>
+    </div>
+    </div>  --%>
+
             <.form for={@form} phx-change="validate"  phx-submit="save" >
     <.input  field={@form[:uni]}   />
     <.input field={@form[:course]}  />
     <.button phx-disable-with="Loading..." >Save</.button>
     </.form>
-            </div>
-        </div>
-    </div>
-    </div>
-
-
     <h1>Number of offers: <%= @num_offer%></h1>
-    <div :for={offer <- @offers} id={"offer-#{offer.id}"} class={"rounded-3xl border border-gray-200 text-white p-2 shadow-sm dark:border-gray-700 bg-sky-600  mx-auto max-w-4xl my-3"}>
+    <div phx-update="stream" id="offers" >
+    <div :for={{offer_id,offer} <- @streams.offers} id={offer_id} class={"rounded-3xl border border-gray-200 text-white p-2 shadow-sm dark:border-gray-700 bg-sky-600  mx-auto max-w-4xl my-3"}>
             <div class="space-y-0 md:flex md:items-center md:justify-between md:gap-6 md:space-y-0">
               <a href="#" class="shrink-0 md:order-1">
                 <img class="h-20 w-20 dark:hidden" src="https://remoteok.com/cdn-cgi/image/format=auto,fit=contain,width=100,height=100,quality=50/https://remoteOK.com/assets/img/jobs/391ae6861ee707daca108f7c9de1635b1716368275.png?1716368276" alt="imac image" />
@@ -138,13 +145,13 @@ defmodule PracphoenixWeb.OfferCon do
               <label for="counter-input" class="sr-only">Choose quantity:</label>
               <div class="flex items-center justify-between md:order-3 md:justify-end">
                 <div class="flex items-center">
-                  <button type="button" id="decrement-button-2" data-input-counter-decrement="counter-input-2" class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+                  <button type="button" id={"decrement-button-#{offer_id}"} data-input-counter-decrement={"counter-input-#{offer_id}"} class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
                     <svg class="h-2.5 w-2.5 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16" />
                     </svg>
                   </button>
-                  <input type="text" id="counter-input-2" data-input-counter class="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 dark:text-white" placeholder="" value="1" required />
-                  <button type="button" id="increment-button-2" data-input-counter-increment="counter-input-2" class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
+                  <input type="text" id={"counter-input-#{offer_id}"} data-input-counter class="w-10 shrink-0 border-0 bg-transparent text-center text-sm font-medium text-gray-900 focus:outline-none focus:ring-0 dark:text-white" placeholder="" value="1" required />
+                  <button type="button" id={"increment-button-#{offer_id}"} data-input-counter-increment={"counter-input-#{offer_id}"} class="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-gray-300 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700">
                     <svg class="h-2.5 w-2.5 text-gray-900 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16" />
                     </svg>
@@ -176,6 +183,7 @@ defmodule PracphoenixWeb.OfferCon do
             </div>
           </div>
     </div>
+    </div>
     """
   end
 
@@ -186,12 +194,7 @@ def handle_event("save", %{"offer" => offer_params}, socket) do
   IO.inspect(offer_params)
   case Offers.create_offer(offer_params) do
     {:ok, offer} ->
-      socket =
-        update(
-      socket,
-      :offers,
-      fn offers -> [offer | offers] end
-    )
+      socket = stream_insert(socket, :offers, offer,at: 0)
       {:noreply, assign(socket, form: to_form(Offers.change_offer(%Offer{})))}
     {:error, changeset} ->
       {:noreply, assign(socket, changeset: to_form(changeset))}
@@ -214,7 +217,7 @@ def handle_event("validate", %{"offer" => offer_params}, socket) do
 
 end
 
-def handle_info({:new_offer,offer}, socket) do
+def handle_info({:new_offer,_offer}, socket) do
   socket =
     update(
       socket,
@@ -222,12 +225,7 @@ def handle_info({:new_offer,offer}, socket) do
       fn num_offer -> num_offer + 1  end
 
     )
-  socket =
-    update(
-      socket,
-      :offers,
-      fn offers -> [offer | offers] end
-    )
+
   {:noreply, socket}
 
 end

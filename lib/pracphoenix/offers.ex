@@ -33,7 +33,7 @@ defmodule Pracphoenix.Offers do
 
   """
   def list_offers do
-    Repo.all(Offer)
+    Repo.all(from o in Offer, order_by: [desc: o.inserted_at])
   end
 
   @doc """
