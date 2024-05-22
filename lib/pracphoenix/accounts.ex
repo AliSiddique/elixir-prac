@@ -8,6 +8,12 @@ defmodule Pracphoenix.Accounts do
 
   alias Pracphoenix.Accounts.{User, UserToken, UserNotifier}
 
+
+def register_oauth_user(attrs) do
+    %User{}
+    |> User.oauth_registration_changeset(attrs)
+    |> Repo.insert()
+end
   ## Database getters
 
   @doc """

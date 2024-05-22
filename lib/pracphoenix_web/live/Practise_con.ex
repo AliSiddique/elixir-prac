@@ -4,9 +4,9 @@ defmodule PracphoenixWeb.PractiseCon do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-     <h1 class="text-center">live</h1>
-    </div>
+    <.link href={~p"/auth/google"}>
+      <.button>Login with Google</.button>
+    </.link>
     """
   end
 

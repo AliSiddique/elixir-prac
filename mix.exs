@@ -34,6 +34,8 @@ defmodule Pracphoenix.MixProject do
     [
       {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.7"},
+      {:ueberauth_google, "~> 0.10"},
+      {:bloom, "~> 0.0.7"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.10"},
       {:ecto_sqlite3, ">= 0.0.0"},

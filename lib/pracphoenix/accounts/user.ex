@@ -7,10 +7,18 @@ defmodule Pracphoenix.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    field :is_oauth_user, :boolean, default: false
+
 
     timestamps()
   end
-
+def oauth_registration_changeset(user, attrs, opts \\ []) do
+    user
+    |> cast(attrs, [:email, :first_name, :last_name])
+    |> validate_required([:first_name, :last_name, :email])
+    |> validate_email(opts)
+    |> put_change(:is_oauth_user, true)
+end
   @doc """
   A user changeset for registration.
 

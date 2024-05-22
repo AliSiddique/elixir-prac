@@ -3,6 +3,7 @@ defmodule PracphoenixWeb.Router do
 
   import PracphoenixWeb.UserAuth
 
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -17,11 +18,16 @@ defmodule PracphoenixWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/auth", PracphoenixWeb do
+    get "/:provider", GoogleAuthController, :request
+    get "/:provider/callback", GoogleAuthController, :callback
+  end
   scope "/", PracphoenixWeb do
     pipe_through :browser
 
     get "/", PageController, :home
     live "/practise", PractiseCon
+    live "/offers", OfferCon
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
     resources "/products", ProductController

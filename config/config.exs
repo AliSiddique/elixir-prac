@@ -10,6 +10,15 @@ import Config
 config :pracphoenix,
   ecto_repos: [Pracphoenix.Repo]
 
+
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [default_scope: "email profile"]}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
 # Configures the endpoint
 config :pracphoenix, PracphoenixWeb.Endpoint,
   url: [host: "localhost"],
